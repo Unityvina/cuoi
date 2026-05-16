@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vivo Việt Nam | Điện Thoại Thông Minh</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo h2 {
+            color: #0a84ff;
+            font-size: 28px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+                        url('https://via.placeholder.com/1920x1080/0a84ff/ffffff?text=vivo+X+FOLD+Series') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.8rem;
+            margin-bottom: 10px;
+        }
+
+        .hero h2 {
+            font-size: 2.6rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-btn {
+            padding: 16px 45px;
+            font-size: 1.2rem;
+            background: #0a84ff;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: 0.3s;
+        }
+
+        .cta-btn:hover {
+            background: #0066cc;
+            transform: scale(1.05);
+        }
+
+        .products {
+            padding: 100px 5% 80px;
+            background: #f9f9f9;
+        }
+
+        .products h2 {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.4rem;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: 0.4s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+        }
+
+        .product-card h3 {
+            margin: 15px 0 5px;
+            font-size: 1.5rem;
+        }
+
+        .product-card button {
+            margin: 15px 0 20px;
+            padding: 12px 30px;
+            background: #0a84ff;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        footer {
+            background: #1a1a1a;
+            color: #ccc;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 40px;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+            80%, 100% { transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.8rem; }
+            .hero h2 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <h2>vivo</h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#">Sản phẩm</a></li>
+            <li><a href="#">E-Store</a></li>
+            <li><a href="#">Hỗ trợ</a></li>
+            <li><a href="#">Tin tức</a></li>
+            <li><a href="#">Giới thiệu</a></li>
+        </ul>
+        <div class="nav-right">
+            <i class="fas fa-search" style="font-size: 1.3rem; cursor: pointer;"></i>
+            <i class="fas fa-shopping-cart" style="font-size: 1.3rem; cursor: pointer;"></i>
+            <button class="cta-btn" style="padding: 8px 20px; font-size: 1rem;">Đăng nhập</button>
+        </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="hero">
+        <div>
+            <h1>Điện Ảnh Chuẩn ZEISS</h1>
+            <h2>Kiến Tạo Tuyệt Tác</h2>
+            <p style="font-size: 1.3rem; max-width: 600px;">Trải nghiệm camera đỉnh cao cùng công nghệ ZEISS trên vivo X Series</p>
+            <button class="cta-btn">Mua Ngay</button>
+        </div>
+        <div class="scroll-down">
+            Cuộn xuống <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Sản phẩm mới -->
+    <section class="products">
+        <h2>Sản Phẩm Mới Nhất</h2>
+        <div class="product-grid">
+            <div class="product-card">
+                <img src="https://via.placeholder.com/400x500/0a84ff/ffffff?text=X300+Ultra" alt="X300 Ultra">
+                <h3>X300 Ultra</h3>
+                <p>ZEISS Master Portrait • Siêu camera 200MP</p>
+                <button>Tìm hiểu ngay</button>
+            </div>
+            <div class="product-card">
+                <img src="https://via.placeholder.com/400x500/0066cc/ffffff?text=V70+Pro" alt="V70 Pro">
+                <h3>V70 Pro 5G</h3>
+                <p>Thiết kế sang trọng • Chip mạnh mẽ</p>
+                <button>Tìm hiểu ngay</button>
+            </div>
+            <div class="product-card">
+                <img src="https://via.placeholder.com/400x500/00cc99/ffffff?text=Y+Series" alt="Y Series">
+                <h3>Y29s</h3>
+                <p>Siêu pin • Thiết kế mỏng nhẹ</p>
+                <button>Tìm hiểu ngay</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 vivo Mobile Communication Việt Nam. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Smooth scroll khi click "Cuộn xuống"
+        document.querySelector('.scroll-down').addEventListener('click', () => {
+            document.querySelector('.products').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        });
+
+        console.log("%cWebsite Vivo Clone đã sẵn sàng!", "color: #0a84ff; font-size: 16px;");
+    </script>
+</body>
+</html>
