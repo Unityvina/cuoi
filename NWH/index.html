@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đất Việt 2026 - Mua Bán & Trao Đổi Đất Đai Toàn Quốc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .hero-bg {
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://picsum.photos/id/1015/1920/1080');
+            background-size: cover;
+            background-position: center;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">Đ</div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-green-700">Đất Việt</h1>
+                        <p class="text-xs text-gray-500 -mt-1">2026</p>
+                    </div>
+                </div>
+                
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+                    <a href="#" class="hover:text-green-600 transition">Trang chủ</a>
+                    <a href="#" class="hover:text-green-600 transition">Mua đất</a>
+                    <a href="#" class="hover:text-green-600 transition">Bán đất</a>
+                    <a href="#" class="hover:text-green-600 transition">Trao đổi</a>
+                    <a href="#" class="hover:text-green-600 transition">Dự án</a>
+                    <a href="#" class="hover:text-green-600 transition">Tin thị trường</a>
+                </nav>
+
+                <div class="flex items-center gap-4">
+                    <button onclick="dangNhap()" 
+                            class="px-5 py-2 text-sm font-medium text-gray-700 hover:text-green-600 transition">
+                        Đăng nhập
+                    </button>
+                    <button onclick="dangTin()" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition">
+                        <i class="fas fa-plus"></i>
+                        Đăng tin bán
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero-bg h-screen flex items-center text-white">
+        <div class="max-w-7xl mx-auto px-6 pt-20">
+            <div class="max-w-2xl">
+                <h2 class="text-5xl md:text-6xl font-bold leading-tight mb-6">
+                    Kết nối mua bán đất đai<br>
+                    <span class="text-green-400">Việt Nam 2026</span>
+                </h2>
+                <p class="text-xl mb-8 text-gray-200">
+                    Hơn 12.500+ lô đất đang giao dịch • Pháp lý minh bạch • Giá tốt nhất thị trường
+                </p>
+                
+                <!-- Search -->
+                <div class="bg-white rounded-3xl p-2 shadow-2xl">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                        <div class="relative">
+                            <select id="province" class="w-full p-4 rounded-2xl border border-gray-200 focus:outline-none focus:border-green-500 text-gray-700">
+                                <option value="">Tỉnh/Thành phố</option>
+                                <option value="hcm">TP. Hồ Chí Minh</option>
+                                <option value="hn">Hà Nội</option>
+                                <option value="dn">Đà Nẵng</option>
+                                <option value="bd">Bình Dương</option>
+                                <option value="dn">Đồng Nai</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select class="w-full p-4 rounded-2xl border border-gray-200 focus:outline-none focus:border-green-500 text-gray-700">
+                                <option>Loại đất</option>
+                                <option>Đất ở</option>
+                                <option>Đất nông nghiệp</option>
+                                <option>Đất công nghiệp</option>
+                                <option>Đất thương mại</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="text" placeholder="Giá (tỷ)" 
+                                   class="w-full p-4 rounded-2xl border border-gray-200 focus:outline-none focus:border-green-500 text-gray-700">
+                        </div>
+                        <button onclick="timKiem()" 
+                                class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2">
+                            <i class="fas fa-search"></i>
+                            Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex gap-6 mt-8 text-sm">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-check text-green-400"></i>
+                        <span>Pháp lý rõ ràng</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-check text-green-400"></i>
+                        <span>Xác minh thực tế</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-check text-green-400"></i>
+                        <span>Hỗ trợ 24/7</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="bg-white py-6 border-b">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-8 text-center">
+                <div>
+                    <div class="text-3xl font-bold text-green-600">12.8k</div>
+                    <div class="text-sm text-gray-500">Lô đất đang rao</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-green-600">2.4k</div>
+                    <div class="text-sm text-gray-500">Giao dịch tháng 5/2026</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-green-600">89</div>
+                    <div class="text-sm text-gray-500">Tỉnh thành</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-green-600">4.8%</div>
+                    <div class="text-sm text-gray-500">Tăng giá trung bình</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-green-600">98%</div>
+                    <div class="text-sm text-gray-500">Pháp lý chuẩn</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-green-600">15k+</div>
+                    <div class="text-sm text-gray-500">Thành viên</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Listings -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+        <div class="flex justify-between items-end mb-10">
+            <h2 class="text-3xl font-bold">Tin đăng nổi bật 2026</h2>
+            <a href="#" class="text-green-600 hover:underline flex items-center gap-1">
+                Xem tất cả <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Card 1 -->
+            <div class="bg-white rounded-3xl overflow-hidden card-hover border border-gray-100">
+                <div class="relative">
+                    <img src="https://picsum.photos/id/1015/600/400" alt="Đất Thủ Đức" 
+                         class="w-full h-52 object-cover">
+                    <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-2xl text-xs font-bold text-green-600 shadow">
+                        18.5 tỷ
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">TP. Thủ Đức, TP.HCM</span>
+                        <span class="font-medium">120m²</span>
+                    </div>
+                    <h3 class="font-semibold mt-2 line-clamp-2">Đất thổ cư mặt tiền đường số 8, view sông, sổ hồng riêng</h3>
+                    <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                        <div><i class="fas fa-calendar"></i> 2 ngày trước</div>
+                        <div><i class="fas fa-eye"></i> 245</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-white rounded-3xl overflow-hidden card-hover border border-gray-100">
+                <div class="relative">
+                    <img src="https://picsum.photos/id/201/600/400" alt="Đất Long An" 
+                         class="w-full h-52 object-cover">
+                    <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-2xl text-xs font-bold text-green-600 shadow">
+                        4.2 tỷ
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Huyện Đức Hòa, Long An</span>
+                        <span class="font-medium">500m²</span>
+                    </div>
+                    <h3 class="font-semibold mt-2 line-clamp-2">Đất nông nghiệp chuyển đổi, gần KCN, đường nhựa 8m</h3>
+                    <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                        <div><i class="fas fa-calendar"></i> Hôm nay</div>
+                        <div><i class="fas fa-eye"></i> 189</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-white rounded-3xl overflow-hidden card-hover border border-gray-100">
+                <div class="relative">
+                    <img src="https://picsum.photos/id/866/600/400" alt="Đất Đà Nẵng" 
+                         class="w-full h-52 object-cover">
+                    <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-2xl text-xs font-bold text-green-600 shadow">
+                        42 tỷ
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Quận Ngũ Hành Sơn, Đà Nẵng</span>
+                        <span class="font-medium">280m²</span>
+                    </div>
+                    <h3 class="font-semibold mt-2 line-clamp-2">Đất view biển, khu đô thị cao cấp, sẵn sổ đỏ</h3>
+                    <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                        <div><i class="fas fa-calendar"></i> 5 ngày trước</div>
+                        <div><i class="fas fa-eye"></i> 412</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="bg-white rounded-3xl overflow-hidden card-hover border border-gray-100">
+                <div class="relative">
+                    <img src="https://picsum.photos/id/133/600/400" alt="Đất Bắc Ninh" 
+                         class="w-full h-52 object-cover">
+                    <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-2xl text-xs font-bold text-green-600 shadow">
+                        9.8 tỷ
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">TP. Bắc Ninh</span>
+                        <span class="font-medium">250m²</span>
+                    </div>
+                    <h3 class="font-semibold mt-2 line-clamp-2">Đất công nghiệp gần KCN VSIP, hạ tầng hoàn thiện</h3>
+                    <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                        <div><i class="fas fa-calendar"></i> 1 tuần trước</div>
+                        <div><i class="fas fa-eye"></i> 156</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market News -->
+    <section class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold mb-10 text-center">Tin thị trường đất đai tháng 5/2026</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-gray-800 p-6 rounded-3xl">
+                    <div class="text-green-400 text-sm font-medium mb-2">CHÍNH SÁCH MỚI</div>
+                    <h3 class="text-xl font-semibold mb-3">Luật Đất đai 2024 sửa đổi có hiệu lực từ 01/07/2026</h3>
+                    <p class="text-gray-400 text-sm">Người dân được chuyển nhượng đất nông nghiệp dễ dàng hơn...</p>
+                    <div class="text-xs text-gray-500 mt-6">17/05/2026</div>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-3xl">
+                    <div class="text-green-400 text-sm font-medium mb-2">XU HƯỚNG</div>
+                    <h3 class="text-xl font-semibold mb-3">Đất công nghiệp Bình Dương, Đồng Nai tăng 12% so với quý I</h3>
+                    <p class="text-gray-400 text-sm">Nhà đầu tư FDI tiếp tục đổ vốn mạnh vào khu vực phía Nam...</p>
+                    <div class="text-xs text-gray-500 mt-6">16/05/2026</div>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-3xl">
+                    <div class="text-green-400 text-sm font-medium mb-2">CẢNH BÁO</div>
+                    <h3 class="text-xl font-semibold mb-3">Cẩn thận với các dự án "ma" tại khu vực ven Hà Nội</h3>
+                    <p class="text-gray-400 text-sm">Cơ quan chức năng khuyến cáo nhà đầu tư kiểm tra pháp lý kỹ...</p>
+                    <div class="text-xs text-gray-500 mt-6">15/05/2026</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-5 gap-10">
+                <div>
+                    <div class="flex items-center gap-3 text-white mb-6">
+                        <div class="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-3xl">Đ</div>
+                        <span class="text-2xl font-bold">Đất Việt 2026</span>
+                    </div>
+                    <p class="text-sm">Nền tảng mua bán, trao đổi đất đai uy tín nhất Việt Nam.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Dịch vụ</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white">Đăng tin miễn phí</a></li>
+                        <li><a href="#" class="hover:text-white">Xác minh pháp lý</a></li>
+                        <li><a href="#" class="hover:text-white">Định giá tự động</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Hỗ trợ</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white">Hotline: 1900 6688</a></li>
+                        <li><a href="#" class="hover:text-white">Hướng dẫn đăng tin</a></li>
+                        <li><a href="#" class="hover:text-white">Câu hỏi thường gặp</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Về chúng tôi</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white">Giới thiệu</a></li>
+                        <li><a href="#" class="hover:text-white">Điều khoản</a></li>
+                        <li><a href="#" class="hover:text-white">Chính sách bảo mật</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Kết nối</h4>
+                    <div class="flex gap-4 text-2xl">
+                        <i class="fab fa-facebook hover:text-white cursor-pointer"></i>
+                        <i class="fab fa-youtube hover:text-white cursor-pointer"></i>
+                        <i class="fab fa-tiktok hover:text-white cursor-pointer"></i>
+                    </div>
+                    <p class="mt-6 text-xs">© 2026 Đất Việt JSC. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function timKiem() {
+            alert("Đang tìm kiếm theo tiêu chí của bạn... (Demo)");
+        }
+        
+        function dangTin() {
+            alert("Chuyển đến trang đăng tin bán đất (Demo)");
+        }
+        
+        function dangNhap() {
+            alert("Chức năng đăng nhập (Demo)");
+        }
+
+        // Tailwind script đã được include
+    </script>
+</body>
+</html>
