@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển Đổi Múi Giờ Thế Giới</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        
+        .title-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .time-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .time-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        .clock {
+            font-size: 2.75rem;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="title-font text-4xl font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                    🌍 TimeZone
+                </h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-1">Chuyển đổi múi giờ nhanh chóng</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="toggleDarkMode()" 
+                        class="p-3 rounded-2xl bg-white dark:bg-gray-800 shadow-sm hover:shadow transition-all">
+                    <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
+                </button>
+                <div class="text-sm text-gray-500 dark:text-gray-400 text-right">
+                    <div id="current-utc" class="font-mono"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Live World Clocks -->
+            <div class="lg:col-span-7">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-blue-500"></i>
+                        Giờ hiện tại
+                    </h2>
+                    <button onclick="refreshClocks()" 
+                            class="text-sm flex items-center gap-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>Làm mới</span>
+                    </button>
+                </div>
+                
+                <div id="live-clocks" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- JS sẽ sinh ra các card -->
+                </div>
+            </div>
+
+            <!-- Converter -->
+            <div class="lg:col-span-5">
+                <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-8 sticky top-8">
+                    <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        Chuyển đổi
+                    </h2>
+
+                    <!-- From -->
+                    <div class="mb-8">
+                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Từ</label>
+                        <div class="flex gap-3">
+                            <div class="flex-1">
+                                <input type="datetime-local" id="from-time" 
+                                       class="w-full px-4 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                            </div>
+                            <div class="w-72">
+                                <select id="from-zone" 
+                                        class="w-full px-4 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="flex justify-center my-2">
+                        <div class="bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                            ↓
+                        </div>
+                    </div>
+
+                    <!-- To -->
+                    <div class="mb-8">
+                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Đến</label>
+                        <div class="flex gap-3">
+                            <div class="flex-1">
+                                <div id="to-time" 
+                                     class="w-full px-4 py-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-2xl font-mono text-2xl font-semibold text-emerald-700 dark:text-emerald-300">
+                                </div>
+                            </div>
+                            <div class="w-72">
+                                <select id="to-zone" 
+                                        class="w-full px-4 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Result -->
+                    <div class="mt-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-2xl border border-blue-100 dark:border-blue-900">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-xs uppercase tracking-widest text-blue-600 dark:text-blue-400 font-medium">Kết quả</div>
+                                <div id="result-time" class="text-4xl font-semibold font-mono mt-1"></div>
+                            </div>
+                            <div id="result-zone" class="text-right"></div>
+                        </div>
+                    </div>
+
+                    <button onclick="convertTime()" 
+                            class="mt-8 w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-blue-500/30 hover:shadow-xl hover:from-blue-700 hover:to-indigo-700 transition-all">
+                        Chuyển đổi ngay
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular Cities -->
+        <div class="mt-16">
+            <h2 class="text-2xl font-semibold mb-6">Thành phố phổ biến</h2>
+            <div id="popular-cities" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                <!-- JS sẽ sinh ra -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-gray-400 text-sm py-8 mt-16 border-t dark:border-gray-800">
+        Built with ❤️ • Dữ liệu múi giờ từ trình duyệt
+    </footer>
+
+    <script>
+        // Danh sách múi giờ phổ biến
+        const timeZones = [
+            { name: "Asia/Ho_Chi_Minh", city: "Hà Nội / TP.HCM", flag: "🇻🇳" },
+            { name: "Asia/Bangkok", city: "Bangkok", flag: "🇹🇭" },
+            { name: "Asia/Singapore", city: "Singapore", flag: "🇸🇬" },
+            { name: "Asia/Tokyo", city: "Tokyo", flag: "🇯🇵" },
+            { name: "Asia/Seoul", city: "Seoul", flag: "🇰🇷" },
+            { name: "Asia/Shanghai", city: "Bắc Kinh", flag: "🇨🇳" },
+            { name: "Asia/Dubai", city: "Dubai", flag: "🇦🇪" },
+            { name: "Europe/London", city: "London", flag: "🇬🇧" },
+            { name: "Europe/Paris", city: "Paris", flag: "🇫🇷" },
+            { name: "Europe/Berlin", city: "Berlin", flag: "🇩🇪" },
+            { name: "America/New_York", city: "New York", flag: "🇺🇸" },
+            { name: "America/Chicago", city: "Chicago", flag: "🇺🇸" },
+            { name: "America/Los_Angeles", city: "Los Angeles", flag: "🇺🇸" },
+            { name: "America/Sao_Paulo", city: "São Paulo", flag: "🇧🇷" },
+            { name: "Australia/Sydney", city: "Sydney", flag: "🇦🇺" },
+        ];
+
+        let darkMode = false;
+
+        // Populate select options
+        function populateTimeZones() {
+            const fromSelect = document.getElementById('from-zone');
+            const toSelect = document.getElementById('to-zone');
+            
+            timeZones.forEach(tz => {
+                const option1 = document.createElement('option');
+                option1.value = tz.name;
+                option1.textContent = `${tz.flag} ${tz.city} (${tz.name})`;
+                fromSelect.appendChild(option1);
+                
+                const option2 = option1.cloneNode(true);
+                toSelect.appendChild(option2);
+            });
+            
+            // Default values
+            fromSelect.value = "Asia/Ho_Chi_Minh";
+            toSelect.value = "America/New_York";
+        }
+
+        // Format time
+        function formatTime(date, timeZone) {
+            return new Intl.DateTimeFormat('vi-VN', {
+                timeZone: timeZone,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).format(date);
+        }
+
+        function formatFullDate(date, timeZone) {
+            return new Intl.DateTimeFormat('vi-VN', {
+                timeZone: timeZone,
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            }).format(date);
+        }
+
+        // Create live clock card
+        function createClockCard(tz) {
+            const card = document.createElement('div');
+            card.className = `time-card bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800`;
+            card.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="flex items-center gap-2 text-lg">
+                            <span class="text-2xl">${tz.flag}</span>
+                            <span class="font-semibold">${tz.city}</span>
+                        </div>
+                        <div class="text-xs text-gray-400 font-mono mt-1">${tz.name}</div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <div id="clock-${tz.name.replace(/\//g, '-')}" 
+                         class="clock text-gray-900 dark:text-white font-mono"></div>
+                    <div id="date-${tz.name.replace(/\//g, '-')}" 
+                         class="text-sm text-gray-500 dark:text-gray-400 mt-1"></div>
+                </div>
+            `;
+            return card;
+        }
+
+        // Update all live clocks
+        function updateLiveClocks() {
+            const now = new Date();
+            
+            timeZones.forEach(tz => {
+                const clockEl = document.getElementById(`clock-${tz.name.replace(/\//g, '-')}`);
+                const dateEl = document.getElementById(`date-${tz.name.replace(/\//g, '-')}`);
+                
+                if (clockEl) {
+                    clockEl.textContent = formatTime(now, tz.name);
+                }
+                if (dateEl) {
+                    dateEl.textContent = formatFullDate(now, tz.name);
+                }
+            });
+            
+            // Update UTC
+            document.getElementById('current-utc').textContent = 
+                `UTC: ${formatTime(now, 'UTC')}`;
+        }
+
+        // Create popular city cards
+        function createPopularCities() {
+            const container = document.getElementById('popular-cities');
+            container.innerHTML = '';
+            
+            timeZones.forEach(tz => {
+                const div = document.createElement('div');
+                div.className = `bg-white dark:bg-gray-900 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">${tz.flag}</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium truncate">${tz.city}</div>
+                            <div class="text-xs text-gray-400 font-mono truncate">${tz.name}</div>
+                        </div>
+                    </div>
+                    <div id="pop-clock-${tz.name.replace(/\//g, '-')}" 
+                         class="text-3xl font-semibold font-mono mt-4 text-blue-600 dark:text-blue-400"></div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updatePopularClocks() {
+            const now = new Date();
+            timeZones.forEach(tz => {
+                const el = document.getElementById(`pop-clock-${tz.name.replace(/\//g, '-')}`);
+                if (el) el.textContent = formatTime(now, tz.name);
+            });
+        }
+
+        // Main conversion function
+        function convertTime() {
+            const fromTimeStr = document.getElementById('from-time').value;
+            const fromZone = document.getElementById('from-zone').value;
+            const toZone = document.getElementById('to-zone').value;
+            
+            if (!fromTimeStr) {
+                alert("Vui lòng chọn thời gian ban đầu!");
+                return;
+            }
+            
+            // Parse input time
+            const fromDate = new Date(fromTimeStr);
+            
+            // Convert to target zone
+            const options = {
+                timeZone: toZone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            
+            const formatter = new Intl.DateTimeFormat('en-CA', options);
+            const parts = formatter.formatToParts(fromDate);
+            
+            const year = parts.find(p => p.type === 'year').value;
+            const month = parts.find(p => p.type === 'month').value;
+            const day = parts.find(p => p.type === 'day').value;
+            const hour = parts.find(p => p.type === 'hour').value;
+            const minute = parts.find(p => p.type === 'minute').value;
+            
+            const resultStr = `${year}-${month}-${day} ${hour}:${minute}`;
+            
+            document.getElementById('to-time').textContent = `${hour}:${minute}`;
+            document.getElementById('result-time').textContent = resultStr;
+            document.getElementById('result-zone').innerHTML = `
+                <div class="text-sm text-gray-500">Múi giờ đích</div>
+                <div class="font-medium">${toZone}</div>
+            `;
+        }
+
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        function refreshClocks() {
+            updateLiveClocks();
+            updatePopularClocks();
+        }
+
+        // Initialize everything
+        function initialize() {
+            populateTimeZones();
+            createPopularCities();
+            
+            // Set default time to now
+            const now = new Date();
+            const localTimeStr = now.toISOString().slice(0, 16);
+            document.getElementById('from-time').value = localTimeStr;
+            
+            // Initial render
+            updateLiveClocks();
+            updatePopularClocks();
+            
+            // Live update every second
+            setInterval(() => {
+                updateLiveClocks();
+                updatePopularClocks();
+            }, 1000);
+            
+            // Auto convert when inputs change
+            document.getElementById('from-time').addEventListener('change', convertTime);
+            document.getElementById('from-zone').addEventListener('change', convertTime);
+            document.getElementById('to-zone').addEventListener('change', convertTime);
+            
+            // First conversion
+            setTimeout(convertTime, 300);
+        }
+
+        // Start the app
+        window.onload = initialize;
+    </script>
+</body>
+</html>
