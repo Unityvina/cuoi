@@ -433,8 +433,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Lưu trữ thông tin User Token toàn cục
+// Lưu trữ thông tin User Token và ID toàn cục để các hàm logic phía dưới gọi được
 window.userToken = null;
+window.userId = null;
 
 // Hàm Đăng nhập bằng Google
 window.loginWithGoogle = async function() {
@@ -465,6 +466,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     // Đã đăng nhập thành công
     window.userToken = await user.getIdToken();
+    window.userId = user.uid; // Sử dụng UID để định vị nhánh dữ liệu cá nhân an toàn không lỗi dấu chấm email
     
     // Cập nhật giao diện Header (Hiện Avatar và Tên)
     authSection.innerHTML = `
@@ -479,11 +481,12 @@ onAuthStateChanged(auth, async (user) => {
     loginNotice.style.display = 'none';
     appContent.classList.remove('auth-lock-state');
     
-    // Tải dữ liệu từ DB
+    // Tải dữ liệu cá nhân từ DB
     fetchAll();
   } else {
     // Chưa đăng nhập / Đã đăng xuất
     window.userToken = null;
+    window.userId = null;
     authSection.innerHTML = `
       <button class="btn-google" onclick="loginWithGoogle()">
         <i class="ri-google-fill"></i> Đăng nhập
@@ -497,10 +500,12 @@ onAuthStateChanged(auth, async (user) => {
 });
 </script>
 
-<!-- CÁC HÀM XỬ LÝ LOGIC APP CŨ -->
+<!-- CÁC HÀM XỬ LÝ LOGIC APP ĐÃ ĐƯỢC CÁ NHÂN HÓA -->
 <script>
-// Chuyển DB URL sang endpoint của config mới bạn đưa
-const DB_BASE_URL = 'https://urf1forall-default-rtdb.firebaseio.com/remittances';
+// Định nghĩa một hàm helper để lấy endpoint động tương ứng với từng tài khoản user
+function getUserDbUrl() {
+  return `https://urf1forall-default-rtdb.firebaseio.com/users/${window.userId}/remittances`;
+}
 
 let allRecords = [];
 let currentLang = 'vi';
@@ -530,11 +535,11 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('f-date').value = local;
 });
 
-// Thêm token xác thực vào URL Firebase để bảo mật dữ liệu theo từng User đăng nhập
+// Thêm token xác thực vào URL Firebase và thay đổi endpoint lấy dữ liệu cá nhân
 async function fetchAll() {
-  if (!window.userToken) return;
+  if (!window.userToken || !window.userId) return;
   try {
-    const res = await fetch(`${DB_BASE_URL}.json?auth=${window.userToken}`);
+    const res = await fetch(`${getUserDbUrl()}.json?auth=${window.userToken}`);
     const data = await res.json();
     allRecords = data
       ? Object.entries(data).map(([id, val]) => ({ id, ...val }))
@@ -552,7 +557,7 @@ async function fetchAll() {
 }
 
 async function saveRecord(record) {
-  const res = await fetch(`${DB_BASE_URL}.json?auth=${window.userToken}`, {
+  const res = await fetch(`${getUserDbUrl()}.json?auth=${window.userToken}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(record)
@@ -562,7 +567,7 @@ async function saveRecord(record) {
 }
 
 async function deleteRecord(id) {
-  await fetch(`${DB_BASE_URL}/${id}.json?auth=${window.userToken}`, { method: 'DELETE' });
+  await fetch(`${getUserDbUrl()}/${id}.json?auth=${window.userToken}`, { method: 'DELETE' });
 }
 
 async function submitTransfer() {
