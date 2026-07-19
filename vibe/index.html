@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unity Vina — Gửi Tiền Về Nhà</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Tích hợp thư viện Icon RemixIcon cao cấp -->
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+
+<style>
+  :root {
+    --bg: #0c0f1a;
+    --surface: #131728;
+    --surface2: #1a1f35;
+    --border: rgba(255,255,255,0.07);
+    --gold: #e8b86d;
+    --gold-dim: #c99a50;
+    --gold-glow: rgba(232,184,109,0.15);
+    --green: #4ade80;
+    --green-dim: rgba(74,222,128,0.12);
+    --red: #f87171;
+    --text: #eef0f8;
+    --text-muted: #8890b0;
+    --text-dim: #555e80;
+    --accent: #6c8aff;
+    --accent-dim: rgba(108,138,255,0.12);
+    --radius: 16px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(108,138,255,0.06) 0%, transparent 70%); pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(232,184,109,0.06) 0%, transparent 70%); pointer-events: none; z-index: 0;
+  }
+
+  /* ─── HEADER ─────────────────────────────── */
+  header {
+    position: relative; z-index: 10; padding: 20px 40px; display: flex; align-items: center;
+    justify-content: space-between; border-bottom: 1px solid var(--border); backdrop-filter: blur(8px);
+    background: rgba(12,15,26,0.8); position: sticky; top: 0; gap: 16px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-icon {
+    width: 44px; height: 44px; background: linear-gradient(135deg, var(--gold), #d4964a);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: #0c0f1a; box-shadow: 0 4px 20px rgba(232,184,109,0.3);
+  }
+  .logo-text h1 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; }
+  .logo-text p { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .header-actions { display: flex; align-items: center; gap: 16px; }
+  
+  .lang-toggle { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 40px; padding: 3px; gap: 2px; }
+  .lang-btn {
+    padding: 6px 16px; border-radius: 40px; border: none; background: transparent; color: var(--text-muted);
+    font-family: 'Be Vietnam Pro', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  }
+  .lang-btn.active { background: var(--gold); color: #0c0f1a; font-weight: 600; }
+
+  /* Auth UI Styles */
+  .auth-section { display: flex; align-items: center; gap: 12px; }
+  .btn-google {
+    display: flex; align-items: center; gap: 8px; background: #fff; color: #1f1f1f;
+    border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px;
+    cursor: pointer; transition: background 0.2s; font-family: inherit;
+  }
+  .btn-google:hover { background: #f1f1f1; }
+  .btn-google i { font-size: 16px; color: #ea4335; }
+  
+  .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; position: relative; }
+  .user-avatar { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--gold); }
+  .user-info { font-size: 13px; font-weight: 500; text-align: right; display: block; }
+  .btn-logout { background: transparent; border: none; color: var(--red); font-size: 16px; cursor: pointer; padding: 4px; opacity: 0.7; }
+  .btn-logout:hover { opacity: 1; }
+
+  /* ─── MAIN LAYOUT ─────────────────────────── */
+  main { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+  .auth-lock-state { display: none; } /* Trạng thái ẩn trước khi đăng nhập */
+
+  /* ─── STATS ROW ───────────────────────────── */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card.gold { border-color: rgba(232,184,109,0.25); }
+  .stat-card.green { border-color: rgba(74,222,128,0.2); }
+  .stat-card.blue { border-color: rgba(108,138,255,0.2); }
+
+  .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .stat-value { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+  .stat-card.gold .stat-value { color: var(--gold); }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.blue .stat-value { color: var(--accent); }
+  .stat-sub { font-size: 12px; color: var(--text-dim); }
+  .stat-icon { position: absolute; top: 20px; right: 20px; font-size: 28px; color: var(--text-dim); opacity: 0.25; }
+
+  /* ─── TWO-COLUMN LAYOUT ─────────────────── */
+  .layout-grid { display: grid; grid-template-columns: 400px 1fr; gap: 24px; align-items: start; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .card-header { padding: 20px 24px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  
+  .card-header-icon {
+    width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .card-header-icon.gold-bg { background: var(--gold-glow); color: var(--gold); }
+  .card-header-icon.green-bg { background: var(--green-dim); color: var(--green); }
+  
+  .card-header h2 { font-size: 15px; font-weight: 600; color: var(--text); }
+  .card-header span.sub { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+  .card-body { padding: 24px; }
+
+  /* ─── FORM ───────────────────────────────── */
+  .form-group { margin-bottom: 18px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+  .input-wrap { position: relative; }
+  .input-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); font-weight: 500; pointer-events: none; }
+
+  input, select, textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-family: inherit; font-size: 14px; color: var(--text); outline: none; transition: all 0.2s;
+  }
+  .has-prefix input { padding-left: 36px; }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold-dim); box-shadow: 0 0 0 3px var(--gold-glow); }
+  input::placeholder, textarea::placeholder { color: var(--text-dim); }
+  .amount-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .quick-amounts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .quick-btn {
+    padding: 5px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px;
+    color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .quick-btn:hover { border-color: var(--gold-dim); color: var(--gold); background: var(--gold-glow); }
+
+  .btn-submit {
+    width: 100%; padding: 14px; background: linear-gradient(135deg, var(--gold), #d4964a); border: none;
+    border-radius: 10px; color: #0c0f1a; font-family: inherit; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; margin-top: 4px; box-shadow: 0 4px 20px rgba(232,184,109,0.25);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(232,184,109,0.35); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Login State Screen Cover */
+  .login-required-msg {
+    text-align: center; padding: 100px 24px; color: var(--text-muted);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .login-required-msg i { font-size: 48px; color: var(--gold); margin-bottom: 16px; display: block; }
+
+  /* ─── TOAST ──────────────────────────────── */
+  .toast-wrap { position: fixed; bottom: 32px; right: 32px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
+  .toast {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px;
+    font-size: 14px; font-weight: 500; box-shadow: var(--shadow); display: flex; align-items: center; gap: 10px;
+    animation: slideUp 0.3s ease; max-width: 320px;
+  }
+  .toast.success { border-color: rgba(74,222,128,0.3); color: var(--green); }
+  .toast.error { border-color: rgba(248,113,113,0.3); color: var(--red); }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ─── HISTORY TABLE ──────────────────────── */
+  .filter-bar { padding: 14px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .filter-input { flex: 1; min-width: 160px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); outline: none; font-family: inherit;}
+  .filter-select { padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); outline: none; cursor: pointer; font-family: inherit;}
+
+  .history-empty { padding: 60px 24px; text-align: center; color: var(--text-dim); }
+  .history-empty i { font-size: 40px; margin-bottom: 12px; display: block;}
+
+  .tx-item { padding: 16px 24px; display: grid; grid-template-columns: 3fr 1fr 1fr auto; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  .tx-item:last-child { border-bottom: none; }
+  .tx-item:hover { background: rgba(255,255,255,0.02); }
+
+  .tx-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .tx-date { font-size: 12px; color: var(--text-dim); }
+  .tx-note { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+  .tx-amount { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--gold); text-align: right; }
+  .tx-currency { font-size: 12px; color: var(--text-muted); text-align: right; margin-top: 2px; }
+
+  .tx-tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .tag-transfer { background: rgba(108,138,255,0.12); color: var(--accent); }
+  .tag-emergency { background: rgba(248,113,113,0.1); color: var(--red); }
+  .tag-monthly { background: var(--green-dim); color: var(--green); }
+  .tag-other { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+
+  .tx-delete {
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: transparent;
+    color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; opacity: 0;
+  }
+  .tx-item:hover .tx-delete { opacity: 1; }
+  .tx-delete:hover { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--red); }
+
+  /* ─── CHART ──────────────────────────────── */
+  .chart-wrap { padding: 24px; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 140px; margin-bottom: 8px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .bar-val { font-size: 10px; color: var(--text-muted); text-align: center; }
+  .bar { width: 100%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--gold), var(--gold-dim)); min-height: 4px; position: relative; }
+  .bar-label { font-size: 10px; color: var(--text-dim); text-align: center; }
+
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(12,15,26,0.3); border-top-color: #0c0f1a; border-radius: 50%; animation: spin 0.6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 860px) {
+    .layout-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    header { padding: 20px 16px; }
+    main { padding: 24px 16px 60px; }
+    .tx-item { grid-template-columns: 1fr auto; }
+    .tx-tag { display: none; }
+    .tx-delete { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon"><i class="ri-home-4-line"></i></div>
+    <div class="logo-text">
+      <h1>Unity Vina</h1>
+      <p data-vi="Theo dõi tiền gửi về nhà" data-en="Home Remittance Tracker">Theo dõi tiền gửi về nhà</p>
+    </div>
+  </div>
+  
+  <div class="header-actions">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('vi')">Tiếng Việt</button>
+      <button class="lang-btn" onclick="setLang('en')">English</button>
+    </div>
+    
+    <!-- Tích hợp Khu Vực Đăng Nhập -->
+    <div class="auth-section" id="auth-section">
+      <button class="btn-google" onclick="loginWithGoogle()">
+        <i class="ri-google-fill"></i> Đăng nhập
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+  <!-- Màn hình thông báo nếu chưa đăng nhập -->
+  <div id="login-notice" class="login-required-msg">
+    <i class="ri-lock-2-line"></i>
+    <h3 data-vi="Vui lòng đăng nhập" data-en="Please Login">Vui lòng đăng nhập</h3>
+    <p data-vi="Đăng nhập bằng tài khoản Google để xem và quản lý lịch sử gửi tiền." data-en="Login with Google to view and manage your remittance history.">Đăng nhập bằng tài khoản Google để xem và quản lý lịch sử gửi tiền.</p>
+  </div>
+
+  <!-- Bọc nội dung ứng dụng vào Container Lock State để ẩn hiện theo trạng thái đăng nhập -->
+  <div id="app-content" class="auth-lock-state">
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card gold">
+        <div class="stat-icon"><i class="ri-wallet-3-line"></i></div>
+        <div class="stat-label" data-vi="Tổng đã gửi" data-en="Total Sent">Tổng đã gửi</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub" id="stat-total-sub" data-vi="tất cả thời gian" data-en="all time">tất cả thời gian</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><i class="ri-calendar-check-line"></i></div>
+        <div class="stat-label" data-vi="Tháng này" data-en="This Month">Tháng này</div>
+        <div class="stat-value" id="stat-month">—</div>
+        <div class="stat-sub" id="stat-month-sub">—</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon"><i class="ri-bar-chart-box-line"></i></div>
+        <div class="stat-label" data-vi="Số lần gửi" data-en="Transfers">Số lần gửi</div>
+        <div class="stat-value" id="stat-count">—</div>
+        <div class="stat-sub" id="stat-avg" data-vi="trung bình mỗi lần" data-en="average per transfer">trung bình mỗi lần</div>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="layout-grid">
+      <!-- FORM -->
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon gold-bg"><i class="ri-send-plane-line"></i></div>
+            <h2 data-vi="Ghi nhận gửi tiền" data-en="Record Transfer">Ghi nhận gửi tiền</h2>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label" data-vi="Người gửi" data-en="Sender">Người gửi</label>
+              <input type="text" id="f-sender" placeholder="Nguyễn Văn A" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-vi="Người nhận" data-en="Recipient">Người nhận</label>
+              <input type="text" id="f-recipient" placeholder="Ba / Mẹ / Gia đình" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-vi="Số tiền" data-en="Amount">Số tiền</label>
+              <div class="amount-group">
+                <div class="input-wrap has-prefix">
+                  <span class="input-prefix" id="currency-prefix">₫</span>
+                  <input type="number" id="f-amount" placeholder="0" min="0" step="1000">
+                </div>
+                <select id="f-currency" onchange="updateCurrencyPrefix()">
+                  <option value="VND">VND ₫</option>
+                  <option value="USD">USD $</option>
+                  <option value="EUR">EUR €</option>
+                  <option value="JPY">JPY ¥</option>
+                  <option value="KRW">KRW ₩</option>
+                  <option value="AUD">AUD A$</option>
+                </select>
+              </div>
+              <div class="quick-amounts" id="quick-amounts">
+                <button class="quick-btn" onclick="setQuickAmount(500000)">500K</button>
+                <button class="quick-btn" onclick="setQuickAmount(1000000)">1M</button>
+                <button class="quick-btn" onclick="setQuickAmount(2000000)">2M</button>
+                <button class="quick-btn" onclick="setQuickAmount(5000000)">5M</button>
+                <button class="quick-btn" onclick="setQuickAmount(10000000)">10M</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-vi="Loại giao dịch" data-en="Type">Loại giao dịch</label>
+              <select id="f-type">
+                <option value="monthly" data-vi="💚 Hàng tháng" data-en="💚 Monthly">💚 Hàng tháng</option>
+                <option value="transfer" data-vi="🔵 Chuyển khoản" data-en="🔵 Transfer">🔵 Chuyển khoản</option>
+                <option value="emergency" data-vi="🔴 Khân cấp" data-en="🔴 Emergency">🔴 Khẩn cấp</option>
+                <option value="other" data-vi="⚪ Khác" data-en="⚪ Other">⚪ Khác</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-vi="Ngày gửi" data-en="Date">Ngày gửi</label>
+              <input type="datetime-local" id="f-date">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-vi="Ghi chú" data-en="Note">Ghi chú</label>
+              <textarea id="f-note" placeholder="Tiền sinh hoạt, học phí, …" rows="2"></textarea>
+            </div>
+
+            <button class="btn-submit" id="btn-submit" onclick="submitTransfer()">
+              <span id="btn-text" data-vi="Lưu giao dịch" data-en="Save Transfer">Lưu giao dịch</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- MONTHLY CHART -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header">
+            <div class="card-header-icon gold-bg"><i class="ri-line-chart-line"></i></div>
+            <h2 data-vi="Thống kê 6 tháng" data-en="6-Month Overview">Thống kê 6 tháng</h2>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-bars" id="chart-bars">
+              <div style="color:var(--text-dim);font-size:13px;width:100%;text-align:center;padding:40px 0" data-vi="Chưa có dữ liệu" data-en="No data yet">Chưa có dữ liệu</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon green-bg"><i class="ri-history-line"></i></div>
+          <h2 data-vi="Lịch sử giao dịch" data-en="Transaction History">Lịch sử giao dịch</h2>
+          <span class="sub" id="tx-count-label">0 giao dịch</span>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-input" type="text" id="filter-search" placeholder="🔍 Tìm kiếm…" oninput="renderHistory()">
+          <select class="filter-select" id="filter-type" onchange="renderHistory()">
+            <option value="" data-vi="Tất cả loại" data-en="All types">Tất cả loại</option>
+            <option value="monthly" data-vi="Hàng tháng" data-en="Monthly">Hàng tháng</option>
+            <option value="transfer" data-vi="Chuyển khoản" data-en="Transfer">Chuyển khoản</option>
+            <option value="emergency" data-vi="Khẩn cấp" data-en="Emergency">Khẩn cấp</option>
+            <option value="other" data-vi="Khác" data-en="Other">Khác</option>
+          </select>
+          <select class="filter-select" id="filter-sort" onchange="renderHistory()">
+            <option value="newest" data-vi="Mới nhất" data-en="Newest">Mới nhất</option>
+            <option value="oldest" data-vi="Cũ nhất" data-en="Oldest">Cũ nhất</option>
+            <option value="highest" data-vi="Cao nhất" data-en="Highest">Cao nhất</option>
+          </select>
+        </div>
+        <div class="history-list" id="history-list">
+          <div class="history-empty">
+            <i class="ri-inbox-archive-line"></i>
+            <p data-vi="Đang tải dữ liệu…" data-en="Loading data…">Đang tải dữ liệu…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- NHÚNG MODULE FIREBASE AUTHENTICATION -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+// Cấu hình Firebase dựa trên thông tin bạn đã cung cấp
+const firebaseConfig = {
+  apiKey: "AIzaSyDVRzkeY2reKjR5Gv0dHx55geqgivUjEAQ",
+  authDomain: "urf1forall.firebaseapp.com",
+  databaseURL: "https://urf1forall-default-rtdb.firebaseio.com",
+  projectId: "urf1forall",
+  storageBucket: "urf1forall.firebasestorage.app",
+  messagingSenderId: "335719421403",
+  appId: "1:335719421403:web:bd46318fad54a532a4c3fe",
+  measurementId: "G-4DB7Q6Q51D"
+};
+
+// Khởi tạo ứng dụng và Auth
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// Lưu trữ thông tin User Token toàn cục
+window.userToken = null;
+
+// Hàm Đăng nhập bằng Google
+window.loginWithGoogle = async function() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    showToast(currentLang === 'vi' ? 'Đăng nhập thành công!' : 'Login Successful!', 'success');
+  } catch (error) {
+    console.error(error);
+    showToast(currentLang === 'vi' ? 'Đăng nhập thất bại' : 'Login failed', 'error');
+  }
+}
+
+// Hàm Đăng xuất
+window.logout = function() {
+  signOut(auth).then(() => {
+    showToast(currentLang === 'vi' ? 'Đã đăng xuất' : 'Logged out', 'success');
+  }).catch((error) => {
+    console.error(error);
+  });
+}
+
+// Lắng nghe trạng thái đăng nhập
+onAuthStateChanged(auth, async (user) => {
+  const authSection = document.getElementById('auth-section');
+  const appContent = document.getElementById('app-content');
+  const loginNotice = document.getElementById('login-notice');
+
+  if (user) {
+    // Đã đăng nhập thành công
+    window.userToken = await user.getIdToken();
+    
+    // Cập nhật giao diện Header (Hiện Avatar và Tên)
+    authSection.innerHTML = `
+      <div class="user-profile">
+        <span class="user-info">Hi, <b>${user.displayName}</b></span>
+        <img class="user-avatar" src="${user.photoURL}" alt="Avatar">
+        <button class="btn-logout" onclick="logout()" title="Đăng xuất"><i class="ri-logout-box-r-line"></i></button>
+      </div>
+    `;
+    
+    // Hiển thị nội dung App
+    loginNotice.style.display = 'none';
+    appContent.classList.remove('auth-lock-state');
+    
+    // Tải dữ liệu từ DB
+    fetchAll();
+  } else {
+    // Chưa đăng nhập / Đã đăng xuất
+    window.userToken = null;
+    authSection.innerHTML = `
+      <button class="btn-google" onclick="loginWithGoogle()">
+        <i class="ri-google-fill"></i> Đăng nhập
+      </button>
+    `;
+    
+    // Ẩn nội dung App
+    loginNotice.style.display = 'block';
+    appContent.classList.add('auth-lock-state');
+  }
+});
+</script>
+
+<!-- CÁC HÀM XỬ LÝ LOGIC APP CŨ -->
+<script>
+// Chuyển DB URL sang endpoint của config mới bạn đưa
+const DB_BASE_URL = 'https://urf1forall-default-rtdb.firebaseio.com/remittances';
+
+let allRecords = [];
+let currentLang = 'vi';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    if (b.textContent.includes(lang === 'vi' ? 'Việt' : 'English')) b.classList.add('active');
+  });
+  document.querySelectorAll('[data-vi]').forEach(el => {
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.placeholder = el.getAttribute('data-' + lang) || el.placeholder;
+    } else if (el.tagName === 'OPTION') {
+      el.textContent = el.getAttribute('data-' + lang) || el.textContent;
+    } else {
+      el.textContent = el.getAttribute('data-' + lang) || el.textContent;
+    }
+  });
+  document.getElementById('filter-search').placeholder = lang === 'vi' ? '🔍 Tìm kiếm…' : '🔍 Search…';
+  renderHistory();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  const local = new Date(now - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  document.getElementById('f-date').value = local;
+});
+
+// Thêm token xác thực vào URL Firebase để bảo mật dữ liệu theo từng User đăng nhập
+async function fetchAll() {
+  if (!window.userToken) return;
+  try {
+    const res = await fetch(`${DB_BASE_URL}.json?auth=${window.userToken}`);
+    const data = await res.json();
+    allRecords = data
+      ? Object.entries(data).map(([id, val]) => ({ id, ...val }))
+      : [];
+    allRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderAll();
+  } catch (e) {
+    showToast('Không thể kết nối database', 'error');
+    document.getElementById('history-list').innerHTML = `
+      <div class="history-empty">
+        <i class="ri-error-warning-line"></i>
+        <p>${currentLang === 'vi' ? 'Lỗi kết nối Firebase' : 'Firebase connection error'}</p>
+      </div>`;
+  }
+}
+
+async function saveRecord(record) {
+  const res = await fetch(`${DB_BASE_URL}.json?auth=${window.userToken}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(record)
+  });
+  const data = await res.json();
+  return data.name;
+}
+
+async function deleteRecord(id) {
+  await fetch(`${DB_BASE_URL}/${id}.json?auth=${window.userToken}`, { method: 'DELETE' });
+}
+
+async function submitTransfer() {
+  const sender    = document.getElementById('f-sender').value.trim();
+  const recipient = document.getElementById('f-recipient').value.trim();
+  const amount    = parseFloat(document.getElementById('f-amount').value);
+  const currency  = document.getElementById('f-currency').value;
+  const type      = document.getElementById('f-type').value;
+  const date      = document.getElementById('f-date').value;
+  const note      = document.getElementById('f-note').value.trim();
+
+  if (!sender || !recipient || !amount || !date) {
+    showToast(currentLang === 'vi' ? 'Vui lòng điền đầy đủ thông tin' : 'Please fill in all required fields', 'error');
+    return;
+  }
+  if (amount <= 0) {
+    showToast(currentLang === 'vi' ? 'Số tiền phải lớn hơn 0' : 'Amount must be greater than 0', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  const record = { sender, recipient, amount, currency, type, date, note, createdAt: new Date().toISOString() };
+  try {
+    const id = await saveRecord(record);
+    allRecords.unshift({ id, ...record });
+    renderAll();
+    resetForm();
+    showToast(currentLang === 'vi' ? '✅ Đã lưu giao dịch!' : '✅ Transfer saved!', 'success');
+  } catch (e) {
+    showToast(currentLang === 'vi' ? 'Lưu thất bại, thử lại' : 'Save failed, try again', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span id="btn-text" data-vi="Lưu giao dịch" data-en="Save Transfer">${currentLang === 'vi' ? 'Lưu giao dịch' : 'Save Transfer'}</span>`;
+  }
+}
+
+function resetForm() {
+  document.getElementById('f-sender').value = '';
+  document.getElementById('f-recipient').value = '';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-note').value = '';
+}
+
+function renderAll() {
+  renderStats();
+  renderHistory();
+  renderChart();
+}
+
+function renderStats() {
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear  = now.getFullYear();
+
+  const totalVND = allRecords
+    .filter(r => r.currency === 'VND' || !r.currency)
+    .reduce((s, r) => s + r.amount, 0);
+
+  const monthRecords = allRecords.filter(r => {
+    const d = new Date(r.date);
+    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  });
+  const monthVND = monthRecords
+    .filter(r => r.currency === 'VND' || !r.currency)
+    .reduce((s, r) => s + r.amount, 0);
+
+  const count = allRecords.length;
+  const avgVND = count > 0 ? totalVND / count : 0;
+
+  document.getElementById('stat-total').textContent = fmtVND(totalVND);
+  document.getElementById('stat-month').textContent = fmtVND(monthVND);
+  document.getElementById('stat-month-sub').textContent =
+    currentLang === 'vi'
+      ? `${monthRecords.length} lần • tháng ${thisMonth + 1}/${thisYear}`
+      : `${monthRecords.length} transfers • ${now.toLocaleString('en', { month: 'long' })} ${thisYear}`;
+  document.getElementById('stat-count').textContent = count;
+  document.getElementById('stat-avg').textContent =
+    avgVND > 0 ? fmtVND(Math.round(avgVND)) : '—';
+}
+
+function renderHistory() {
+  const search = document.getElementById('filter-search').value.toLowerCase();
+  const typeFilter = document.getElementById('filter-type').value;
+  const sort = document.getElementById('filter-sort').value;
+
+  let records = [...allRecords];
+
+  if (search) records = records.filter(r =>
+    r.sender?.toLowerCase().includes(search) ||
+    r.recipient?.toLowerCase().includes(search) ||
+    r.note?.toLowerCase().includes(search)
+  );
+  if (typeFilter) records = records.filter(r => r.type === typeFilter);
+
+  if (sort === 'oldest') records.sort((a, b) => new Date(a.date) - new Date(b.date));
+  else if (sort === 'highest') records.sort((a, b) => b.amount - a.amount);
+  else records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const label = document.getElementById('tx-count-label');
+  label.textContent = currentLang === 'vi' ? `${records.length} giao dịch` : `${records.length} transfers`;
+
+  const list = document.getElementById('history-list');
+  if (!records.length) {
+    list.innerHTML = `
+      <div class="history-empty">
+        <i class="ri-inbox-archive-line"></i>
+        <p>${currentLang === 'vi' ? 'Chưa có giao dịch nào' : 'No transactions found'}</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = records.map(r => {
+    const d = new Date(r.date);
+    const dateStr = d.toLocaleDateString(currentLang === 'vi' ? 'vi-VN' : 'en-US', {
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    const tagClass = { monthly: 'tag-monthly', transfer: 'tag-transfer', emergency: 'tag-emergency', other: 'tag-other' }[r.type] || 'tag-other';
+    const tagLabel = {
+      vi: { monthly: '💚 Hàng tháng', transfer: '🔵 Chuyển khoản', emergency: '🔴 Khẩn cấp', other: '⚪ Khác' },
+      en: { monthly: '💚 Monthly', transfer: '🔵 Transfer', emergency: '🔴 Emergency', other: '⚪ Other' }
+    }[currentLang][r.type] || '⚪';
+
+    return `
+    <div class="tx-item">
+      <div class="tx-main">
+        <div class="tx-name">
+          ${escHtml(r.sender)} → ${escHtml(r.recipient)}
+        </div>
+        <div class="tx-date">${dateStr}</div>
+        ${r.note ? `<div class="tx-note">${escHtml(r.note)}</div>` : ''}
+      </div>
+      <div>
+        <div class="tx-amount">${fmtCurrency(r.amount, r.currency)}</div>
+        <div class="tx-currency">${r.currency || 'VND'}</div>
+      </div>
+      <span class="tx-tag ${tagClass}">${tagLabel}</span>
+      <button class="tx-delete" onclick="deleteItem('${r.id}')" title="${currentLang === 'vi' ? 'Xóa' : 'Delete'}"><i class="ri-close-line"></i></button>
+    </div>`;
+  }).join('');
+}
+
+function renderChart() {
+  const container = document.getElementById('chart-bars');
+  if (!allRecords.length) {
+    container.innerHTML = `<div style="color:var(--text-dim);font-size:13px;width:100%;text-align:center;padding:40px 0">${currentLang === 'vi' ? 'Chưa có dữ liệu' : 'No data yet'}</div>`;
+    return;
+  }
+
+  const now = new Date();
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ year: d.getFullYear(), month: d.getMonth(), label: d.toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'en-US', { month: 'short' }) });
+  }
+
+  const totals = months.map(m => {
+    return allRecords
+      .filter(r => {
+        const d = new Date(r.date);
+        return d.getMonth() === m.month && d.getFullYear() === m.year && (!r.currency || r.currency === 'VND');
+      })
+      .reduce((s, r) => s + r.amount, 0);
+  });
+
+  const max = Math.max(...totals, 1);
+
+  container.innerHTML = months.map((m, i) => {
+    const pct = (totals[i] / max) * 100;
+    const valStr = totals[i] > 0 ? fmtVND(totals[i]) : '—';
+    return `
+      <div class="bar-col">
+        <div class="bar-val">${totals[i] > 0 ? shortFmt(totals[i]) : ''}</div>
+        <div class="bar" style="height:${Math.max(pct, 2)}%" data-val="${valStr}"></div>
+        <div class="bar-label">${m.label}</div>
+      </div>`;
+  }).join('');
+}
+
+async function deleteItem(id) {
+  const confirm = window.confirm(currentLang === 'vi' ? 'Xóa giao dịch này?' : 'Delete this transaction?');
+  if (!confirm) return;
+  try {
+    await deleteRecord(id);
+    allRecords = allRecords.filter(r => r.id !== id);
+    renderAll();
+    showToast(currentLang === 'vi' ? 'Đã xóa giao dịch' : 'Transaction deleted', 'success');
+  } catch {
+    showToast(currentLang === 'vi' ? 'Xóa thất bại' : 'Delete failed', 'error');
+  }
+}
+
+function fmtVND(n) {
+  if (!n) return '0 ₫';
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(n);
+}
+function fmtCurrency(n, cur) {
+  if (!n) return '0';
+  const c = cur || 'VND';
+  try {
+    return new Intl.NumberFormat(currentLang === 'vi' ? 'vi-VN' : 'en-US', {
+      style: 'currency', currency: c, maximumFractionDigits: c === 'VND' || c === 'JPY' ? 0 : 2
+    }).format(n);
+  } catch { return n.toLocaleString(); }
+}
+function shortFmt(n) {
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+  return n.toString();
+}
+function escHtml(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function setQuickAmount(v) {
+  document.getElementById('f-amount').value = v;
+}
+
+function updateCurrencyPrefix() {
+  const cur = document.getElementById('f-currency').value;
+  const symbols = { VND: '₫', USD: '$', EUR: '€', JPY: '¥', KRW: '₩', AUD: 'A$' };
+  document.getElementById('currency-prefix').textContent = symbols[cur] || cur;
+  document.getElementById('quick-amounts').style.display = cur === 'VND' ? 'flex' : 'none';
+}
+
+function showToast(msg, type = 'success') {
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+</script>
+</body>
+</html>
